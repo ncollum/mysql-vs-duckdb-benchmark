@@ -1,3 +1,63 @@
+# MySQL vs DuckDB: OLTP-to-OLAP Benchmark
+
+> Team project for COMP 8157 (Advanced Database Topics), University of Windsor, Summer 2026, supervised by Dr. Andreas S. Maniatis.
+> Team 8: Rabiya Javed Farooq, Purab Singh Mohan, Nancy Bogati Collum, Sneha Gunturu.
+> Original team repo: https://github.com/cyberwar18/COMP.-8157---Team-8
+> Final report (IEEE format): [docs/Team8_Final_Report.pdf](docs/Team8_Final_Report.pdf)
+
+**The question:** at what data size and query shape does a row-store database (MySQL) stop being good enough for analytics, compared to a column-store (DuckDB)?
+
+We loaded the TPC-H benchmark dataset at three sizes (SF-1, SF-5, SF-10, up to about 60 million line items), transformed it into a star schema in both engines, then ran the same graduated query matrix against both and measured latency, loading time, storage, memory and CPU.
+
+![MySQL vs DuckDB, multi group-by, full scan](results/chart_multi_group_by_full_scan.png)
+
+## Key results
+
+Multi-column GROUP BY with a full table scan (the heaviest query shape), on the transactional (OLTP) schema:
+
+| | MySQL | DuckDB |
+|---|---|---|
+| SF-1 (about 6M line items) | 59.9 s | 0.32 s |
+| SF-5 (about 30M line items) | 5,935 s (about 99 min) | 2.29 s |
+| Slowdown from SF-1 to SF-5 (5x more data) | about 99x | about 7x |
+
+**What this means in plain words:**
+- At SF-5, DuckDB was **about 2,600x faster** than MySQL on heavy aggregation. MySQL's slowdown grew far faster than the data did, while DuckDB scaled close to linearly.
+- **How the data is accessed mattered even more than the engine.** In MySQL, the same query went from about 99 minutes on a full scan to about 0.02 seconds as an indexed point lookup, roughly a 300,000x difference.
+- **The star schema didn't always help.** It made DuckDB about 2.2 to 2.4x faster on single group-by and nested subqueries, but slightly slower on multi group-by. MySQL gained about 1.1x. The right design depends on the engine and the query.
+- Building the star schema at SF-5 took 7.2 s in DuckDB and about 2.4 hours in MySQL. In MySQL it also shrank the on-disk footprint from about 8.18 GB to 6.66 GB.
+- MySQL at SF-10 was not completed. The roughly 22 GB of raw data plus the engine's on-disk footprint went over our 108 GB machine during loading. The report documents this instead of estimating the missing results.
+
+Numbers are medians across repeated runs, from `results/median_latency_summary.csv`, `results/transformation_metrics.csv` and the final report.
+
+## My contributions (Nancy Bogati Collum)
+
+**My role: lead contributor.** I coordinated the team (planning, task split, deadlines and merging), led the **query execution and metrics collection layer**, ran every benchmark, wrote the **final analysis and charts**, and authored the project documents. That's about 20 of the project's 32 commits.
+
+- **Team coordination:** planned the phases, split tasks across the team, tracked deadlines and handled merging work into `main`.
+- **Documentation:** wrote the pre-proposal, the full proposal (IEEE LaTeX + presentation deck) and the midterm status report, and co-authored the final report.
+
+- **Query executor (`src/query_executor.py`):** runs the full query matrix across both engines, both schema layers, three scale factors and three index-access modes (full scan, indexed point lookup, range scan), and records latency, peak memory and CPU for every trial. I also owned the run configuration (`config.yaml`, `query_matrix.yaml`).
+  - Fixed how index-mode filters get added to queries. Two earlier approaches (matching any WHERE, and matching the outermost WHERE) caused unresolvable and ambiguous column errors on nested subqueries. The final version targets the query block that actually scans the base fact table.
+- **Smoke tests (`tests/test_smoke.py`):** quick checks that the config, schemas and query matrix are valid before starting runs that can take hours.
+- **Ran the benchmarks:** all DuckDB runs (SF-1, SF-5, SF-10) and all MySQL runs (SF-1, SF-5). Single MySQL queries at SF-5 took over 90 minutes, so I backed up the results between runs.
+- **Analysis and charts (`analysis.py`):** median latency summary plus charts for engine comparison, OLTP vs OLAP speedup, index-mode impact, latency vs scale (small multiples), DuckDB peak memory, and degradation rate normalized to SF-1.
+
+**Tech:** Python, MySQL 8.0 (InnoDB), DuckDB, SQL (star schema, TPC-H), pandas, matplotlib, psutil, pytest, YAML config, Bash.
+
+## More charts
+
+| | |
+|---|---|
+| ![Degradation rate](results/chart_degradation_multi_group_by_full_scan.png) | ![Latency vs scale](results/chart_smallmultiples_oltp_full_scan.png) |
+| ![Index mode impact](results/chart_indexmode_duckdb_multi_group_by_sf5.png) | ![DuckDB memory](results/chart_memory_duckdb_oltp_full_scan.png) |
+
+---
+
+*Full setup and run instructions from the original team README follow below.*
+
+
+
 # OLTP-to-OLAP Transformation and Multi-Metric Performance Benchmarking: MySQL vs DuckDB
 
 
