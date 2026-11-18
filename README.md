@@ -11,7 +11,7 @@ This project compares MySQL (row-oriented, OLTP-optimized) against DuckDB
 1. **The transformation step itself.** We load raw TPC-H data in its native
    transactional form into both engines, then explicitly transform it into
    OLAP-ready structures (a star schema fact/dimension model plus a
-   denormalized analytical view) — identically in both engines — and measure
+   denormalized analytical view) identically in both engines and measure
    both layers separately.
 2. **More than query latency.** Data loading time, on-disk storage footprint,
    memory consumption, CPU utilization, and query performance across
