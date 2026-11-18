@@ -1,6 +1,6 @@
 # OLTP-to-OLAP Transformation and Multi-Metric Performance Benchmarking: MySQL vs DuckDB
 
-**Team 8 — COMP 8157, University of Windsor**
+
 Rabiya Javed Farooq · Purab Singh Mohan · Nancy Bogati Collum · Sneha Gunturu
 
 ## What this project does
