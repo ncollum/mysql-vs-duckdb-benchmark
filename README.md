@@ -167,8 +167,7 @@ factors SF-1, SF-5, and SF-10, generated via the official `tpch-dbgen` tool
   of each table at each scale factor, so the data shape and structure can be
   inspected directly without downloading the full dataset.
 - **Full dataset** (too large for GitHub — SF-10's `lineitem.tbl` alone is
-  ~7.8GB, well over GitHub's 100MB per-file limit): **[FILL IN: Google
-  Drive / Dropbox link here]**
+  ~7.8GB, well over GitHub's 100MB per-file limit). Not hosted online.
 - Alternatively, regenerate the full dataset locally at any scale factor
   using the commands in Setup step 4.
 
