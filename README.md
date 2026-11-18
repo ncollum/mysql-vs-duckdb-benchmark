@@ -30,7 +30,7 @@ Multi-column GROUP BY with a full table scan (the heaviest query shape), on the 
 
 Numbers are medians across repeated runs, from `results/median_latency_summary.csv`, `results/transformation_metrics.csv` and the final report.
 
-## My contributions (Nancy Bogati Collum)
+## My contributions
 
 **My role: lead contributor.** I coordinated the team (planning, task split, deadlines and merging), led the **query execution and metrics collection layer**, ran every benchmark, wrote the **final analysis and charts**, and authored the project documents. That's about 20 of the project's 32 commits.
 
